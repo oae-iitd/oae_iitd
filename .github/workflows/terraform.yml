@@ -60,6 +60,13 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
+      - name: Recover errored state (if any)
+        run: |
+          if [ -f errored.tfstate ]; then
+            terraform state push errored.tfstate
+            rm errored.tfstate
+          fi
+
       - name: Import existing OIDC provider (idempotent)
         run: |
           terraform import aws_iam_openid_connect_provider.github \
