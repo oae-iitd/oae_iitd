@@ -4,15 +4,15 @@ kind: Kustomization
 namespace: oae
 
 resources:
-  - ../../base
+- ../../base
 
 images:
-  - name: oae/register-client
-    newName: 957905179934.dkr.ecr.ap-south-1.amazonaws.com/oae/register-client
-    newTag: latest
+- name: oae/register-client
+  newName: 957905179934.dkr.ecr.ap-south-1.amazonaws.com/oae/register-client
+  newTag: fdba56235f7d82dfbebe31f30d57830bbd8b85e7
 
 patches:
-  - path: ingress-patch.yaml
-    target:
-      kind: Ingress
-      name: oae-register
+- path: ingress-patch.yaml
+  target:
+    kind: Ingress
+    name: oae-register
