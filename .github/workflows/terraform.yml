@@ -46,6 +46,13 @@ jobs:
         with:
           terraform_version: "~> 1.6"
 
+      - name: Clear stale state lock
+        run: |
+          aws dynamodb delete-item \
+            --table-name oae-tf-locks \
+            --key '{"LockID": {"S": "oae-tf-state-957905179934/production/terraform.tfstate"}}' \
+            --region ${{ env.AWS_REGION }} || true
+
       - name: Terraform Init
         run: terraform init
 
