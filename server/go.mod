@@ -1,6 +1,6 @@
 module github.com/server
 
-go 1.23
+go 1.25.0
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.41.1
@@ -14,7 +14,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/redis/go-redis/v9 v9.17.2
 	github.com/twilio/twilio-go v1.30.1
-	golang.org/x/crypto v0.31.0
+	golang.org/x/crypto v0.50.0
 )
 
 require (
@@ -50,7 +50,7 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.51.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
-	golang.org/x/sync v0.10.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
-	golang.org/x/text v0.21.0 // indirect
+	golang.org/x/sync v0.20.0 // indirect
+	golang.org/x/sys v0.43.0 // indirect
+	golang.org/x/text v0.36.0 // indirect
 )
