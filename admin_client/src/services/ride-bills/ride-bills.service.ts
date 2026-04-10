@@ -73,7 +73,7 @@ class RideBillsService {
       totalBills: num('totalBills'),
       totalRevenue: num('totalRevenue'),
       pendingBills: num('pendingBills'),
-      paidBills: num('paidBills'),
+      activeBills: num('activeBills'),
       completedBills: num('completedBills'),
       cancelledBills: num('cancelledBills'),
     };

@@ -35,7 +35,9 @@ func main() {
 	case "down":
 		steps := 1
 		if len(os.Args) > 2 {
-			fmt.Sscanf(os.Args[2], "%d", &steps)
+			if _, err := fmt.Sscanf(os.Args[2], "%d", &steps); err != nil {
+				log.Fatalf("Invalid step count %q: %v", os.Args[2], err)
+			}
 		}
 		runDown(steps)
 	default:

@@ -326,56 +326,6 @@ func streamFromS3(c *fiber.Ctx, category, filename string) error {
 	return c.Send(body)
 }
 
-// getS3PresignedURL generates a presigned URL for accessing a private S3 object
-func getS3PresignedURL(category, filename string) (string, error) {
-	ctx := context.Background()
-
-	// Validate AWS credentials
-	accessKeyID := config.AWSAccessKeyID()
-	secretKey := config.AWSSecretKey()
-	bucketName := config.S3BucketName()
-	region := config.AWSRegion()
-
-	if accessKeyID == "" || secretKey == "" || bucketName == "" {
-		return "", fmt.Errorf("AWS credentials not configured")
-	}
-
-	// Load AWS config
-	awsCfg, err := awsconfig.LoadDefaultConfig(ctx,
-		awsconfig.WithRegion(region),
-		awsconfig.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(
-			accessKeyID,
-			secretKey,
-			"",
-		)),
-	)
-	if err != nil {
-		return "", fmt.Errorf("failed to load AWS config: %w", err)
-	}
-
-	// Create S3 client
-	s3Client := s3.NewFromConfig(awsCfg)
-
-	// S3 key (path in bucket)
-	s3Key := fmt.Sprintf("%s/%s", category, filename)
-
-	// Create presign client
-	presignClient := s3.NewPresignClient(s3Client)
-
-	// Generate presigned URL (valid for 1 hour)
-	request, err := presignClient.PresignGetObject(ctx, &s3.GetObjectInput{
-		Bucket: aws.String(bucketName),
-		Key:    aws.String(s3Key),
-	}, func(opts *s3.PresignOptions) {
-		opts.Expires = time.Duration(1 * time.Hour) // URL valid for 1 hour
-	})
-	if err != nil {
-		return "", fmt.Errorf("failed to generate presigned URL: %w", err)
-	}
-
-	return request.URL, nil
-}
-
 // DeleteFile deletes an uploaded file
 func DeleteFile(c *fiber.Ctx) error {
 	category := c.Params("category")

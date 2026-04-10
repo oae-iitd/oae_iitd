@@ -694,7 +694,9 @@ func UpdateUser(c *fiber.Ctx) error {
 
 		// Get current status to check if it's actually changing
 		var currentStatus string
-		database.GetPool().QueryRow(ctx, "SELECT COALESCE(status, 'active') FROM users WHERE id = $1", id).Scan(&currentStatus)
+		if err := database.GetPool().QueryRow(ctx, "SELECT COALESCE(status, 'active') FROM users WHERE id = $1", id).Scan(&currentStatus); err != nil {
+			currentStatus = "active"
+		}
 
 		// Only apply restrictions if the status is actually changing
 		if statusValue != strings.ToLower(currentStatus) {
