@@ -12,6 +12,30 @@ updates:
       - "go"
       - "server"
 
+  # npm (admin client)
+  - package-ecosystem: "npm"
+    directory: "/admin_client"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "npm"
+      - "admin"
+
+  # npm (register client)
+  - package-ecosystem: "npm"
+    directory: "/register_client"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "npm"
+      - "register"
+
   # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"

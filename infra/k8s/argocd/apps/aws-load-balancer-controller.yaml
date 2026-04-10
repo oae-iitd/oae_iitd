@@ -17,10 +17,9 @@ spec:
         serviceAccount:
           name: aws-load-balancer-controller
           annotations:
-            # Get from: terraform output aws_lb_controller_role_arn
-            eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT_ID:role/oae-production-aws-lb-controller
+            eks.amazonaws.com/role-arn: arn:aws:iam::957905179934:role/oae-production-aws-lb-controller
         region: ap-south-1
-        vpcId: REPLACE_WITH_VPC_ID
+        vpcId: vpc-00bf4538e85d96033
   destination:
     server: https://kubernetes.default.svc
     namespace: kube-system

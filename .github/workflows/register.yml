@@ -50,6 +50,9 @@ jobs:
     needs: test
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment: production
+    concurrency:
+      group: gitops-deploy
+      cancel-in-progress: false
     defaults:
       run:
         working-directory: .
@@ -105,4 +108,5 @@ jobs:
           git add ${{ env.K8S_OVERLAY }}/kustomization.yaml
           git diff --staged --quiet || \
             git commit -m "chore: deploy register ${GITHUB_SHA::7} [skip ci]"
+          git pull --rebase origin main
           git push

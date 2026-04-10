@@ -9,7 +9,7 @@ resources:
 # Image tag is updated by CI (github Actions runs: kustomize edit set image)
 images:
   - name: oae/admin-client
-    newName: 123456789012.dkr.ecr.ap-south-1.amazonaws.com/oae/admin-client  # replace with terraform output ecr_admin_url
+    newName: 957905179934.dkr.ecr.ap-south-1.amazonaws.com/oae/admin-client
     newTag: latest
 
 patches:

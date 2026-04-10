@@ -1,8 +1,22 @@
-# Default code owners for all files
+# CODEOWNERS — every pull request requires review from the matching owner.
+# Rules are evaluated bottom-up (last match wins).
+# Docs: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# ── Default (catches everything not matched below) ──────────────────────────────
 * @sudo-de
 
-# Server (Backend)
+# ── Root config files ───────────────────────────────────────────────────────────
+/go.work       @sudo-de
+/go.work.sum   @sudo-de
+/package.json  @sudo-de
+
+# ── Backend (Go server) ─────────────────────────────────────────────────────────
 /server/ @sudo-de
 
-# Infrastructure & CI/CD
-/.github/ @sudo-de
+# ── Frontend clients ────────────────────────────────────────────────────────────
+/admin_client/    @sudo-de
+/register_client/ @sudo-de
+
+# ── Infrastructure & CI/CD (highest scrutiny) ───────────────────────────────────
+/infra/    @sudo-de
+/.github/  @sudo-de

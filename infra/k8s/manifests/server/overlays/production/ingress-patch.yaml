@@ -5,10 +5,10 @@ metadata:
   namespace: oae
   annotations:
     # Get this from ACM after requesting a certificate for your domain
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:ACCOUNT_ID:certificate/CERTIFICATE_ID
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:957905179934:certificate/CERTIFICATE_ID
 spec:
   rules:
-    - host: api.yourdomain.com   # replace with your actual domain
+    - host: api.anyserver.site
       http:
         paths:
           - path: /

@@ -4,6 +4,6 @@ metadata:
   name: oae-server-config
   namespace: oae
 data:
-  S3_BUCKET_NAME: "oae-uploads-production"
-  SMTP_FROM_EMAIL: "noreply@yourdomain.com"
-  CORS_ORIGINS: "https://yourdomain.com,https://admin.yourdomain.com"
+  S3_BUCKET_NAME: "oae-iitd-files-957905179934"
+  SMTP_FROM_EMAIL: "sudo.sde@gmail.com"
+  CORS_ORIGINS: "https://anyserver.site,https://admin.anyserver.site,https://register.anyserver.site"

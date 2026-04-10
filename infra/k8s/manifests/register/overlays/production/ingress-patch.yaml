@@ -5,7 +5,7 @@ metadata:
   namespace: oae
   annotations:
     # Get from: terraform output acm_certificate_arn
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:ACCOUNT_ID:certificate/CERTIFICATE_ID
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:957905179934:certificate/CERTIFICATE_ID
 spec:
   rules:
     - host: register.anyserver.site

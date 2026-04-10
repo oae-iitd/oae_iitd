@@ -11,7 +11,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/YOUR_ORG/odi_server.git  # replace
+    repoURL: https://github.com/oae-iitd/oae_iitd.git
     targetRevision: main
     path: infra/k8s/argocd/apps
   destination:

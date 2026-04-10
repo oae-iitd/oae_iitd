@@ -1,6 +1,3 @@
-# external-dns watches Ingress resources and automatically creates/updates
-# Route53 DNS records. When ArgoCD deploys an Ingress with host: admin.anyserver.site,
-# external-dns creates an A record pointing to the ALB.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -26,8 +23,7 @@ spec:
         serviceAccount:
           name: external-dns
           annotations:
-            # Get from: terraform output external_dns_role_arn
-            eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT_ID:role/oae-production-external-dns
+            eks.amazonaws.com/role-arn: arn:aws:iam::957905179934:role/oae-production-external-dns
         txtOwnerId: oae-production
   destination:
     server: https://kubernetes.default.svc

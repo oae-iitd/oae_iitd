@@ -1,6 +1,6 @@
 locals {
-  cluster_name    = "${var.project}-${var.environment}"
-  secrets_prefix  = "${var.project}/${var.environment}"
+  cluster_name   = "oae-production"
+  secrets_prefix = "${var.project}/${var.environment}"
 
   common_tags = {
     Project     = var.project
@@ -9,77 +9,58 @@ locals {
   }
 }
 
-# ── VPC ────────────────────────────────────────────────────────────────────────
-module "vpc" {
-  source = "../../modules/vpc"
+# ── Existing resources (data sources) ──────────────────────────────────────────
+data "aws_caller_identity" "current" {}
 
-  name               = local.cluster_name
-  cidr               = var.vpc_cidr
-  cluster_name       = local.cluster_name
-  single_nat_gateway = false
-  tags               = local.common_tags
+data "aws_vpc" "main" {
+  id = "vpc-00bf4538e85d96033"
 }
 
-# ── EKS ────────────────────────────────────────────────────────────────────────
-module "eks" {
-  source = "../../modules/eks"
-
-  cluster_name        = local.cluster_name
-  cluster_version     = var.eks_cluster_version
-  vpc_id              = module.vpc.vpc_id
-  private_subnet_ids  = module.vpc.private_subnet_ids
-  intra_subnet_ids    = module.vpc.intra_subnet_ids
-  node_instance_types = var.node_instance_types
-  node_min_size       = var.node_min_size
-  node_max_size       = var.node_max_size
-  node_desired_size   = var.node_desired_size
-  aws_region          = var.aws_region
-  secrets_prefix      = local.secrets_prefix
-  s3_bucket_name      = var.s3_bucket_name
-  tags                = local.common_tags
+data "aws_subnets" "private" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.main.id]
+  }
+  filter {
+    name   = "tag:Name"
+    values = ["*private*"]
+  }
 }
 
-# ── RDS (PostgreSQL) ────────────────────────────────────────────────────────────
-module "rds" {
-  source = "../../modules/rds"
+data "aws_eks_cluster" "main" {
+  name = local.cluster_name
+}
 
-  name                       = local.cluster_name
-  vpc_id                     = module.vpc.vpc_id
-  subnet_ids                 = module.vpc.private_subnet_ids
-  allowed_cidr_blocks        = [module.vpc.vpc_cidr_block]
-  db_name                    = var.db_name
-  db_username                = var.db_username
-  db_password                = var.db_password
-  instance_class             = var.rds_instance_class
-  multi_az                   = var.rds_multi_az
-  skip_final_snapshot        = false
-  deletion_protection        = true
-  backup_retention_period    = 7
-  secrets_prefix             = local.secrets_prefix
-  tags                       = local.common_tags
+data "aws_s3_bucket" "uploads" {
+  bucket = var.s3_bucket_name
+}
+
+# ── EKS OIDC Provider (enables IRSA — IAM Roles for Service Accounts) ──────────
+# Required for pods to assume IAM roles without storing credentials.
+data "tls_certificate" "eks" {
+  url = data.aws_eks_cluster.main.identity[0].oidc[0].issuer
+}
+
+resource "aws_iam_openid_connect_provider" "eks" {
+  client_id_list  = ["sts.amazonaws.com"]
+  thumbprint_list = [data.tls_certificate.eks.certificates[0].sha1_fingerprint]
+  url             = data.aws_eks_cluster.main.identity[0].oidc[0].issuer
+  tags            = local.common_tags
 }
 
 # ── ElastiCache (Redis) ─────────────────────────────────────────────────────────
 module "elasticache" {
   source = "../../modules/elasticache"
 
-  name                       = local.cluster_name
-  vpc_id                     = module.vpc.vpc_id
-  subnet_ids                 = module.vpc.private_subnet_ids
-  allowed_cidr_blocks        = [module.vpc.vpc_cidr_block]
-  node_type                  = var.redis_node_type
-  num_cache_clusters         = var.redis_num_clusters
-  auth_token                 = var.redis_auth_token
-  secrets_prefix             = local.secrets_prefix
-  tags                       = local.common_tags
-}
-
-# ── ECR ────────────────────────────────────────────────────────────────────────
-module "ecr" {
-  source = "../../modules/ecr"
-
-  repositories = ["oae/server", "oae/admin-client", "oae/register-client"]
-  tags         = local.common_tags
+  name                = local.cluster_name
+  vpc_id              = data.aws_vpc.main.id
+  subnet_ids          = data.aws_subnets.private.ids
+  allowed_cidr_blocks = [data.aws_vpc.main.cidr_block]
+  node_type           = var.redis_node_type
+  num_cache_clusters  = var.redis_num_clusters
+  auth_token          = var.redis_auth_token
+  secrets_prefix      = local.secrets_prefix
+  tags                = local.common_tags
 }
 
 # ── Route53 (DNS) ───────────────────────────────────────────────────────────────
@@ -89,7 +70,6 @@ resource "aws_route53_zone" "main" {
 }
 
 # ── ACM Certificate (HTTPS) ─────────────────────────────────────────────────────
-# Covers anyserver.site AND *.anyserver.site (all subdomains)
 resource "aws_acm_certificate" "main" {
   domain_name               = var.domain
   subject_alternative_names = ["*.${var.domain}"]
@@ -101,7 +81,6 @@ resource "aws_acm_certificate" "main" {
   }
 }
 
-# DNS records that prove to ACM you own the domain
 resource "aws_route53_record" "acm_validation" {
   for_each = {
     for dvo in aws_acm_certificate.main.domain_validation_options : dvo.domain_name => {
@@ -125,12 +104,12 @@ resource "aws_acm_certificate_validation" "main" {
 }
 
 # ── GitHub Actions OIDC ─────────────────────────────────────────────────────────
-# Allows GitHub Actions to push images to ECR without storing AWS keys as secrets.
-# Instead, GitHub gets a short-lived token via OIDC.
+# Lets GitHub Actions assume an AWS role without storing any AWS keys.
 resource "aws_iam_openid_connect_provider" "github" {
   url             = "https://token.actions.githubusercontent.com"
   client_id_list  = ["sts.amazonaws.com"]
   thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1", "1c58a3a8518e8759bf075b76b750d4f2df264fcd"]
+  tags            = local.common_tags
 }
 
 resource "aws_iam_role" "github_actions" {
@@ -146,7 +125,6 @@ resource "aws_iam_role" "github_actions" {
       Action = "sts:AssumeRoleWithWebIdentity"
       Condition = {
         StringLike = {
-          # Only your repo can assume this role
           "token.actions.githubusercontent.com:sub" = "repo:${var.github_org}/${var.github_repo}:*"
         }
         StringEquals = {
@@ -159,42 +137,52 @@ resource "aws_iam_role" "github_actions" {
   tags = local.common_tags
 }
 
-resource "aws_iam_role_policy" "github_actions_ecr" {
-  name = "${local.cluster_name}-github-actions-ecr"
-  role = aws_iam_role.github_actions.name
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        # Get auth token (account-level, no specific resource)
-        Effect   = "Allow"
-        Action   = "ecr:GetAuthorizationToken"
-        Resource = "*"
-      },
-      {
-        # Push/pull to all oae/* repos
-        Effect = "Allow"
-        Action = [
-          "ecr:BatchCheckLayerAvailability",
-          "ecr:GetDownloadUrlForLayer",
-          "ecr:BatchGetImage",
-          "ecr:PutImage",
-          "ecr:InitiateLayerUpload",
-          "ecr:UploadLayerPart",
-          "ecr:CompleteLayerUpload",
-        ]
-        Resource = "arn:aws:ecr:${var.aws_region}:${data.aws_caller_identity.current.account_id}:repository/oae/*"
-      }
-    ]
-  })
+# AdministratorAccess is safe here: the OIDC trust policy above locks this role
+# to only the oae-iitd/oae_iitd GitHub repo. No other principal can assume it.
+# This allows GitHub Actions to run Terraform (broad infra changes) AND push to ECR.
+resource "aws_iam_role_policy_attachment" "github_actions_admin" {
+  role       = aws_iam_role.github_actions.name
+  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
 }
 
-data "aws_caller_identity" "current" {}
+# ── IRSA: AWS Load Balancer Controller ─────────────────────────────────────────
+module "aws_load_balancer_controller_irsa" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "~> 5.0"
 
-# ── External-DNS IRSA ───────────────────────────────────────────────────────────
-# external-dns runs in K8s and automatically creates Route53 records
-# whenever an Ingress with a hostname annotation is created.
+  role_name                              = "${local.cluster_name}-aws-lb-controller"
+  attach_load_balancer_controller_policy = true
+
+  oidc_providers = {
+    ex = {
+      provider_arn               = aws_iam_openid_connect_provider.eks.arn
+      namespace_service_accounts = ["kube-system:aws-load-balancer-controller"]
+    }
+  }
+
+  tags = local.common_tags
+}
+
+# ── IRSA: External Secrets Operator ────────────────────────────────────────────
+module "external_secrets_irsa" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "~> 5.0"
+
+  role_name                             = "${local.cluster_name}-external-secrets"
+  attach_external_secrets_policy        = true
+  external_secrets_secrets_manager_arns = ["arn:aws:secretsmanager:${var.aws_region}:${data.aws_caller_identity.current.account_id}:secret:${local.secrets_prefix}/*"]
+
+  oidc_providers = {
+    ex = {
+      provider_arn               = aws_iam_openid_connect_provider.eks.arn
+      namespace_service_accounts = ["external-secrets:external-secrets-sa"]
+    }
+  }
+
+  tags = local.common_tags
+}
+
+# ── IRSA: External DNS ──────────────────────────────────────────────────────────
 module "external_dns_irsa" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
   version = "~> 5.0"
@@ -205,7 +193,7 @@ module "external_dns_irsa" {
 
   oidc_providers = {
     ex = {
-      provider_arn               = module.eks.oidc_provider_arn
+      provider_arn               = aws_iam_openid_connect_provider.eks.arn
       namespace_service_accounts = ["external-dns:external-dns"]
     }
   }
@@ -213,47 +201,41 @@ module "external_dns_irsa" {
   tags = local.common_tags
 }
 
-# ── S3 bucket (uploads) ─────────────────────────────────────────────────────────
-resource "aws_s3_bucket" "uploads" {
-  bucket = var.s3_bucket_name
-  tags   = local.common_tags
-}
+# ── IRSA: OAE Server (S3 access) ────────────────────────────────────────────────
+module "oae_server_irsa" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "~> 5.0"
 
-resource "aws_s3_bucket_versioning" "uploads" {
-  bucket = aws_s3_bucket.uploads.id
-  versioning_configuration {
-    status = "Enabled"
-  }
-}
+  role_name = "${local.cluster_name}-oae-server"
 
-resource "aws_s3_bucket_server_side_encryption_configuration" "uploads" {
-  bucket = aws_s3_bucket.uploads.id
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
+  oidc_providers = {
+    ex = {
+      provider_arn               = aws_iam_openid_connect_provider.eks.arn
+      namespace_service_accounts = ["oae:oae-server"]
     }
   }
+
+  tags = local.common_tags
 }
 
-resource "aws_s3_bucket_public_access_block" "uploads" {
-  bucket                  = aws_s3_bucket.uploads.id
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-}
+resource "aws_iam_role_policy" "oae_server_s3" {
+  name = "${local.cluster_name}-oae-server-s3"
+  role = module.oae_server_irsa.iam_role_name
 
-# ── Terraform state backend resources (bootstrap once) ─────────────────────────
-# Uncomment to create these on first run, then move to backend.tf
-# resource "aws_s3_bucket" "tf_state" {
-#   bucket = "oae-terraform-state"
-# }
-# resource "aws_dynamodb_table" "tf_locks" {
-#   name         = "oae-terraform-locks"
-#   billing_mode = "PAY_PER_REQUEST"
-#   hash_key     = "LockID"
-#   attribute {
-#     name = "LockID"
-#     type = "S"
-#   }
-# }
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject",
+        "s3:ListBucket",
+      ]
+      Resource = [
+        "arn:aws:s3:::${var.s3_bucket_name}",
+        "arn:aws:s3:::${var.s3_bucket_name}/*",
+      ]
+    }]
+  })
+}

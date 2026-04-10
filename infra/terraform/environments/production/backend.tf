@@ -6,18 +6,19 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
-    kubernetes = {
-      source  = "hashicorp/kubernetes"
-      version = "~> 2.0"
+    tls = {
+      source  = "hashicorp/tls"
+      version = "~> 4.0"
     }
   }
 
+  # Run infra/scripts/setup-backend.sh ONCE before terraform init
   backend "s3" {
-    bucket         = "oae-terraform-state"   # change to your bucket
+    bucket         = "oae-tf-state-957905179934"
     key            = "production/terraform.tfstate"
     region         = "ap-south-1"
     encrypt        = true
-    dynamodb_table = "oae-terraform-locks"   # for state locking
+    dynamodb_table = "oae-tf-locks"
   }
 }
 
@@ -25,18 +26,10 @@ provider "aws" {
   region = var.aws_region
 
   default_tags {
-    tags = local.common_tags
-  }
-}
-
-# Kubernetes provider configured from EKS outputs
-provider "kubernetes" {
-  host                   = module.eks.cluster_endpoint
-  cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
-
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    command     = "aws"
-    args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
+    tags = {
+      Project     = "oae"
+      Environment = "production"
+      ManagedBy   = "terraform"
+    }
   }
 }
