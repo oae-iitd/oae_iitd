@@ -4,16 +4,16 @@ kind: Kustomization
 namespace: oae
 
 resources:
-  - ../../base
+- ../../base
 
 # Image tag is updated by CI (github Actions runs: kustomize edit set image)
 images:
-  - name: oae/admin-client
-    newName: 957905179934.dkr.ecr.ap-south-1.amazonaws.com/oae/admin-client
-    newTag: latest
+- name: oae/admin-client
+  newName: 957905179934.dkr.ecr.ap-south-1.amazonaws.com/oae/admin-client
+  newTag: 5224e884b1f92fdceb5120cb833049ff29eda2bd
 
 patches:
-  - path: ingress-patch.yaml
-    target:
-      kind: Ingress
-      name: oae-admin
+- path: ingress-patch.yaml
+  target:
+    kind: Ingress
+    name: oae-admin
