@@ -40,6 +40,7 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
+          role-duration-seconds: 7200
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -58,6 +59,11 @@ jobs:
 
       - name: Terraform Validate
         run: terraform validate
+
+      - name: Import existing OIDC provider (idempotent)
+        run: |
+          terraform import aws_iam_openid_connect_provider.github \
+            arn:aws:iam::957905179934:oidc-provider/token.actions.githubusercontent.com || true
 
       - name: Terraform Plan
         run: terraform plan -out=tfplan -input=false
