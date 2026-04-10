@@ -1,0 +1,523 @@
+.ride-bill-page .recap-value.ride-bill-recap__currency {
+  font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+  font-variant-numeric: tabular-nums;
+}
+
+.ride-bill-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.ride-bill-toolbar__search-wrap {
+  flex: 1 1 14rem;
+  min-width: min(100%, 12rem);
+}
+
+.ride-bill-toolbar__search {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  border: none;
+  background: transparent;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-family: inherit;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.ride-bill-toolbar__search::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.8;
+}
+
+.ride-bill-toolbar__select-wrap {
+  position: relative;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 16rem;
+}
+
+.ride-bill-toolbar__select-wrap--driver {
+  min-width: 9.5rem;
+}
+
+.ride-bill-toolbar__select {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: none;
+  padding: 0.5rem 1.85rem 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: inherit;
+  line-height: 1.25;
+  color: var(--text-primary);
+  cursor: pointer;
+  outline: none;
+  text-overflow: ellipsis;
+}
+
+.ride-bill-toolbar__select:focus-visible {
+  border-radius: 0.35rem;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-color) 45%, transparent);
+}
+
+.ride-bill-toolbar__select-wrap::after {
+  content: "";
+  position: absolute;
+  right: 0.6rem;
+  top: 50%;
+  width: 0.4rem;
+  height: 0.4rem;
+  margin-top: -0.2rem;
+  border-right: 2px solid var(--text-secondary);
+  border-bottom: 2px solid var(--text-secondary);
+  transform: rotate(45deg);
+  pointer-events: none;
+  opacity: 0.75;
+}
+
+.ride-bill-toolbar__time-range {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.ride-bill-calendar-container {
+  position: relative;
+  display: inline-flex;
+}
+
+.ride-bill-calendar-dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 0.75rem;
+  padding: 0;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  min-width: 360px;
+  max-width: 90vw;
+  overflow: visible;
+}
+
+.ride-bill-calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.ride-bill-calendar-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ride-bill-calendar-close-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.25rem;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.ride-bill-calendar-close-btn:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+.ride-bill-calendar-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  padding: 1.5rem;
+  overflow: visible;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ride-bill-date-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+  overflow: visible;
+}
+
+.ride-bill-date-input-group label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ride-bill-date-range-info {
+  padding: 0.75rem 1.5rem;
+  background: var(--hover-bg);
+  border-top: 1px solid var(--card-border);
+  border-bottom: 1px solid var(--card-border);
+}
+
+.ride-bill-date-range-info--error {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.ride-bill-date-range-text {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.ride-bill-date-range-error {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.ride-bill-date-picker-input {
+  width: 100%;
+  min-width: 0;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  color: var(--text-primary);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.ride-bill-date-picker-input:hover {
+  border-color: var(--accent-color, #3b82f6);
+}
+
+.ride-bill-date-picker-input:focus {
+  outline: none;
+  border-color: var(--accent-color, #3b82f6);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.ride-bill-calendar-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--card-border);
+  background: var(--hover-bg);
+}
+
+.ride-bill-calendar-cancel-btn,
+.ride-bill-calendar-apply-btn {
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  border: 1px solid transparent;
+  min-width: 80px;
+}
+
+.ride-bill-calendar-cancel-btn {
+  background: var(--card-bg);
+  color: var(--text-primary);
+  border-color: var(--card-border);
+}
+
+.ride-bill-calendar-cancel-btn:hover {
+  background: var(--hover-bg);
+}
+
+.ride-bill-calendar-apply-btn {
+  background: var(--accent-color, #3b82f6);
+  color: white;
+  border-color: var(--accent-color, #3b82f6);
+}
+
+.ride-bill-calendar-apply-btn:hover:not(:disabled) {
+  opacity: 0.92;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.ride-bill-calendar-apply-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.ride-bill-toolbar__export-wrap {
+  flex: 0 0 auto;
+}
+
+.ride-bill-toolbar__export-wrap .ride-bill-segments__btn {
+  white-space: nowrap;
+}
+
+.ride-bill-segments {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.2rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--card-border);
+  background: var(--bg-tertiary);
+}
+
+.ride-bill-segments__btn {
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: 0.4rem;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.ride-bill-segments__btn:hover {
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--accent-color) 12%, transparent);
+}
+
+.ride-bill-segments__btn--active {
+  background: var(--accent-color);
+  color: #fff;
+}
+
+.ride-bill-segments__btn--active:hover {
+  color: #fff;
+  background: var(--accent-hover);
+}
+
+.ride-bill-segments__btn--calendar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.ride-bill-calendar-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
+  display: block;
+}
+
+.ride-bill-calendar-range-text {
+  font-weight: 500;
+  font-size: 0.8rem;
+  letter-spacing: 0.01em;
+}
+
+.ride-bill-segments__btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.ride-bill-segments__btn:disabled:hover {
+  color: var(--text-secondary);
+  background: transparent;
+}
+
+.ride-bills-table th:first-child,
+.ride-bills-table td:first-child {
+  width: auto;
+  min-width: 5.5rem;
+  max-width: none;
+}
+
+.ride-bills-table th,
+.ride-bills-table td {
+  white-space: normal;
+  overflow: visible;
+  max-width: none;
+  font-size: 0.875rem;
+}
+
+.ride-bills-table__mono {
+  font-variant-numeric: tabular-nums;
+}
+
+.ride-bills-table__route {
+  min-width: 10rem;
+  max-width: 14rem;
+}
+
+.ride-bills-table__fare {
+  font-weight: 600;
+  color: var(--accent-color);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ride-bills-table__muted {
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.ride-bills-table__date-cell span {
+  display: block;
+  line-height: 1.4;
+}
+
+.ride-bills-table__reason {
+  min-width: 9rem;
+  max-width: 14rem;
+  vertical-align: top;
+}
+
+.ride-bills-table__route-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.4rem;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}
+
+.ride-bills-table__route-arrow {
+  color: var(--accent-color);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.ride-bill-status-select {
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--card-border);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  max-width: 100%;
+}
+
+.ride-bill-status-select:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}
+
+.ride-bill-status-select.status-requested {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.55);
+}
+
+.ride-bill-status-select.status-arrived {
+  background: rgba(6, 182, 212, 0.12);
+  border-color: rgba(6, 182, 212, 0.55);
+}
+
+.ride-bill-status-select.status-in_progress {
+  background: rgba(139, 92, 246, 0.12);
+  border-color: rgba(139, 92, 246, 0.55);
+}
+
+.ride-bill-status-select.status-completed {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.55);
+}
+
+.ride-bill-status-select.status-cancelled {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.55);
+}
+
+.ride-bill-reason-select {
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  font-size: 0.8125rem;
+}
+
+.ride-bill-reason-input {
+  margin-top: 0.35rem;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.4rem 0.5rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  color: var(--text-primary);
+  font-size: 0.8125rem;
+}
+
+.ride-bill-reason-input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}
+
+@media (max-width: 768px) {
+  .ride-bill-toolbar__search-wrap,
+  .ride-bill-toolbar__select-wrap,
+  .ride-bill-toolbar__export-wrap,
+  .ride-bill-segments {
+    flex: 1 1 100%;
+    width: 100%;
+    max-width: none;
+    justify-content: stretch;
+  }
+
+  .ride-bill-segments__btn {
+    flex: 1;
+    text-align: center;
+  }
+
+  .ride-bill-toolbar__export-wrap {
+    display: flex;
+  }
+
+  .ride-bill-toolbar__export-wrap .ride-bill-segments__btn {
+    flex: 1;
+    text-align: center;
+  }
+
+  .ride-bill-calendar-dropdown {
+    right: auto;
+    left: 0;
+    width: calc(100vw - 2rem);
+    max-width: 100%;
+    min-width: auto;
+  }
+
+  .ride-bill-calendar-inputs {
+    grid-template-columns: 1fr;
+  }
+
+  .ride-bill-date-picker-input {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .users-table.ride-bills-table {
+    min-width: 920px;
+  }
+}

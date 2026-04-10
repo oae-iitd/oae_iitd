@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: oae-server
+  namespace: oae
+  annotations:
+    # Get this from ACM after requesting a certificate for your domain
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:ACCOUNT_ID:certificate/CERTIFICATE_ID
+spec:
+  rules:
+    - host: api.yourdomain.com   # replace with your actual domain
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: oae-server
+                port:
+                  number: 80

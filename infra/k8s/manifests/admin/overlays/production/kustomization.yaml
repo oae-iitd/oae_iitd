@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: oae
+
+resources:
+  - ../../base
+
+# Image tag is updated by CI (github Actions runs: kustomize edit set image)
+images:
+  - name: oae/admin-client
+    newName: 123456789012.dkr.ecr.ap-south-1.amazonaws.com/oae/admin-client  # replace with terraform output ecr_admin_url
+    newTag: latest
+
+patches:
+  - path: ingress-patch.yaml
+    target:
+      kind: Ingress
+      name: oae-admin

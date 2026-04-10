@@ -1,0 +1,1 @@
+ALTER TABLE ride_bills DROP COLUMN IF EXISTS reason;

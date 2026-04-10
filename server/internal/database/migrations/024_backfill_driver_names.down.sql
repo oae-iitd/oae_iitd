@@ -1,0 +1,2 @@
+-- No rollback: we cannot reliably distinguish backfilled names from user-set ones
+-- This migration is intentionally a no-op on down

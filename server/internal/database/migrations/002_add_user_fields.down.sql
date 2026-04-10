@@ -1,0 +1,23 @@
+DROP INDEX IF EXISTS idx_users_role;
+DROP INDEX IF EXISTS idx_users_status;
+DROP INDEX IF EXISTS idx_users_enrollment_number;
+ALTER TABLE users
+  DROP COLUMN IF EXISTS name,
+  DROP COLUMN IF EXISTS status,
+  DROP COLUMN IF EXISTS is_phone_verified,
+  DROP COLUMN IF EXISTS enrollment_number,
+  DROP COLUMN IF EXISTS programme,
+  DROP COLUMN IF EXISTS course,
+  DROP COLUMN IF EXISTS year,
+  DROP COLUMN IF EXISTS expiry_date,
+  DROP COLUMN IF EXISTS hostel,
+  DROP COLUMN IF EXISTS profile_picture,
+  DROP COLUMN IF EXISTS disability_type,
+  DROP COLUMN IF EXISTS disability_percentage,
+  DROP COLUMN IF EXISTS udid_number,
+  DROP COLUMN IF EXISTS disability_certificate,
+  DROP COLUMN IF EXISTS id_proof_type,
+  DROP COLUMN IF EXISTS id_proof_document,
+  DROP COLUMN IF EXISTS license_number,
+  DROP COLUMN IF EXISTS vehicle_number,
+  DROP COLUMN IF EXISTS vehicle_type;

@@ -1,0 +1,17 @@
+# Client-only stack: build the Vite app and serve with nginx.
+# Set VITE_API_URL to your backend’s public URL (used at build time).
+#
+# Example:
+#   VITE_API_URL=https://api.example.com docker compose up --build
+#   docker compose up --build -d
+
+services:
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-}
+    ports:
+      - "${CLIENT_PORT:-8080}:80"
+    restart: unless-stopped

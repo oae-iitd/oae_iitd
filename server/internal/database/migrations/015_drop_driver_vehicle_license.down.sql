@@ -1,0 +1,4 @@
+ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS license_number VARCHAR(100),
+    ADD COLUMN IF NOT EXISTS vehicle_number VARCHAR(100),
+    ADD COLUMN IF NOT EXISTS vehicle_type  VARCHAR(50);

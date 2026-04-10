@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: oae-server-config
+  namespace: oae
+data:
+  S3_BUCKET_NAME: "oae-uploads-production"
+  SMTP_FROM_EMAIL: "noreply@yourdomain.com"
+  CORS_ORIGINS: "https://yourdomain.com,https://admin.yourdomain.com"

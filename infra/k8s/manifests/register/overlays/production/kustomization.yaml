@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: oae
+
+resources:
+  - ../../base
+
+images:
+  - name: oae/register-client
+    newName: 123456789012.dkr.ecr.ap-south-1.amazonaws.com/oae/register-client  # replace with terraform output ecr_register_url
+    newTag: latest
+
+patches:
+  - path: ingress-patch.yaml
+    target:
+      kind: Ingress
+      name: oae-register

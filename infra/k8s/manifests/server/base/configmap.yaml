@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: oae-server-config
+  namespace: oae
+data:
+  APP_NAME: "oae-server"
+  APP_ENV: "production"
+  APP_PORT: "3000"
+  AWS_REGION: "ap-south-1"
+  STORAGE_TYPE: "s3"
+  SMTP_HOST: "email-smtp.ap-south-1.amazonaws.com"
+  SMTP_PORT: "587"
+  SMTP_FROM_NAME: "OAE IITD"

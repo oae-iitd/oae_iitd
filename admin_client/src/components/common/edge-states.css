@@ -1,0 +1,229 @@
+/**
+ * Shared layout and skin for loading, error, empty, and success blocks
+ * and for inline page banners (fetch errors, confirmations).
+ */
+
+:root {
+  --state-error-fg: #b91c1c;
+  --state-error-bg: rgba(239, 68, 68, 0.1);
+  --state-error-border: rgba(239, 68, 68, 0.35);
+  --state-success-fg: #047857;
+  --state-success-bg: rgba(16, 185, 129, 0.12);
+  --state-success-border: rgba(16, 185, 129, 0.35);
+  --state-info-fg: var(--accent-color);
+  --state-info-bg: var(--accent-light);
+  --state-info-border: rgba(99, 102, 241, 0.35);
+  --state-warning-fg: #b45309;
+  --state-warning-bg: rgba(245, 158, 11, 0.12);
+  --state-warning-border: rgba(245, 158, 11, 0.4);
+}
+
+:root[data-theme="dark"] {
+  --state-error-fg: #fca5a5;
+  --state-error-bg: rgba(239, 68, 68, 0.15);
+  --state-error-border: rgba(239, 68, 68, 0.4);
+  --state-success-fg: #6ee7b7;
+  --state-success-bg: rgba(16, 185, 129, 0.15);
+  --state-success-border: rgba(16, 185, 129, 0.4);
+  --state-warning-fg: #fbbf24;
+  --state-warning-bg: rgba(245, 158, 11, 0.12);
+  --state-warning-border: rgba(251, 191, 36, 0.35);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):not([data-theme="dark"]) {
+    --state-error-fg: #fca5a5;
+    --state-error-bg: rgba(239, 68, 68, 0.15);
+    --state-error-border: rgba(239, 68, 68, 0.4);
+    --state-success-fg: #6ee7b7;
+    --state-success-bg: rgba(16, 185, 129, 0.15);
+    --state-success-border: rgba(16, 185, 129, 0.4);
+    --state-warning-fg: #fbbf24;
+    --state-warning-bg: rgba(245, 158, 11, 0.12);
+    --state-warning-border: rgba(251, 191, 36, 0.35);
+  }
+}
+
+.edge-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem 1.5rem;
+  min-height: 140px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.edge-state--page {
+  min-height: min(56vh, 420px);
+  width: 100%;
+}
+
+.edge-state__icon {
+  width: 3.5rem;
+  height: 3.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.25rem;
+  font-size: 2.75rem;
+  line-height: 1;
+}
+
+.edge-state__message {
+  margin: 0;
+  padding: 0 0.5rem;
+  min-width: 0;
+  max-width: 36rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.edge-state--error .edge-state__message {
+  color: var(--text-primary);
+}
+
+.edge-state--loading .edge-state__message {
+  color: var(--text-secondary);
+}
+
+.edge-state--success .edge-state__message {
+  color: var(--text-primary);
+}
+
+.edge-state__action,
+.edge-state__retry {
+  padding: 0.65rem 1.35rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--accent-color);
+  background: var(--accent-light);
+  color: var(--accent-color);
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.edge-state__action:hover:not(:disabled),
+.edge-state__retry:hover:not(:disabled) {
+  background: rgba(99, 102, 241, 0.18);
+  border-color: var(--accent-hover);
+}
+
+.edge-state__action:disabled,
+.edge-state__retry:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.edge-state--success .edge-state__action {
+  border-color: var(--state-success-border);
+  background: var(--state-success-bg);
+  color: var(--state-success-fg);
+}
+
+.edge-state--success .edge-state__action:hover:not(:disabled) {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: var(--state-success-fg);
+}
+
+/* Spinner */
+.edge-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--card-border);
+  border-top-color: var(--accent-color);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+@keyframes edge-spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.edge-spinner--animated {
+  animation: edge-spinner-rotate 0.85s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .edge-spinner--animated {
+    animation: none;
+    border-top-color: var(--accent-color);
+    opacity: 0.85;
+  }
+}
+
+/* Inline / page banners */
+.state-banner {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: 0.65rem;
+  border: 1px solid transparent;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.state-banner__message {
+  flex: 1 1 12rem;
+  margin: 0;
+  min-width: 0;
+}
+
+.state-banner__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-left: auto;
+}
+
+.state-banner__btn {
+  padding: 0.4rem 0.85rem;
+  border-radius: 0.5rem;
+  border: 1px solid currentColor;
+  background: transparent;
+  color: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  opacity: 0.95;
+}
+
+.state-banner__btn:hover {
+  opacity: 1;
+}
+
+.state-banner--error {
+  border-color: var(--state-error-border);
+  background: var(--state-error-bg);
+  color: var(--state-error-fg);
+}
+
+.state-banner--success {
+  border-color: var(--state-success-border);
+  background: var(--state-success-bg);
+  color: var(--state-success-fg);
+}
+
+.state-banner--info {
+  border-color: var(--state-info-border);
+  background: var(--state-info-bg);
+  color: var(--state-info-fg);
+}
+
+.state-banner--warning {
+  border-color: var(--state-warning-border);
+  background: var(--state-warning-bg);
+  color: var(--state-warning-fg);
+}

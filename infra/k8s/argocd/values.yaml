@@ -1,0 +1,66 @@
+# Helm values for ArgoCD (chart: argo/argo-cd, version: ~7.x)
+global:
+  domain: argocd.yourdomain.com  # replace with your domain
+
+configs:
+  params:
+    server.insecure: false
+  cm:
+    # Auto-sync timeout
+    timeout.reconciliation: 180s
+    # Enable status badge
+    statusbadge.enabled: "true"
+    # Resource tracking
+    application.resourceTrackingMethod: annotation
+
+server:
+  ingress:
+    enabled: true
+    ingressClassName: alb
+    annotations:
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/target-type: ip
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+      alb.ingress.kubernetes.io/ssl-redirect: "443"
+      alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:ACCOUNT_ID:certificate/CERTIFICATE_ID
+      alb.ingress.kubernetes.io/backend-protocol: HTTPS
+    hosts:
+      - argocd.yourdomain.com
+    tls:
+      - hosts:
+          - argocd.yourdomain.com
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+repoServer:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+applicationSet:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+redis:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi

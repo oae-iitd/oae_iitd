@@ -1,0 +1,1 @@
+ALTER TABLE ride_bills ADD COLUMN IF NOT EXISTS distance DECIMAL(10, 2);

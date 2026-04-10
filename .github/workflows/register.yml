@@ -1,0 +1,108 @@
+name: Register Client
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'register_client/**'
+      - '.github/workflows/register.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'register_client/**'
+
+env:
+  AWS_REGION: ap-south-1
+  ECR_REPOSITORY: oae/register-client
+  K8S_OVERLAY: infra/k8s/manifests/register/overlays/production
+
+defaults:
+  run:
+    working-directory: register_client
+
+jobs:
+  # ── 1. Lint + Build ────────────────────────────────────────────────────────
+  test:
+    name: Lint & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: register_client/package-lock.json
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+  # ── 2. Build → ECR → GitOps (main only) ───────────────────────────────────
+  deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: production
+    defaults:
+      run:
+        working-directory: .
+
+    permissions:
+      id-token: write
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build & push image
+        id: build
+        env:
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
+          TAG: ${{ github.sha }}
+        run: |
+          IMAGE="${REGISTRY}/${ECR_REPOSITORY}:${TAG}"
+          docker build \
+            --platform linux/amd64 \
+            --cache-from "${REGISTRY}/${ECR_REPOSITORY}:cache" \
+            --build-arg BUILDKIT_INLINE_CACHE=1 \
+            --build-arg VITE_API_URL=${{ secrets.VITE_API_URL }} \
+            -t "${IMAGE}" \
+            -t "${REGISTRY}/${ECR_REPOSITORY}:cache" \
+            ./register_client
+          docker push "${IMAGE}"
+          docker push "${REGISTRY}/${ECR_REPOSITORY}:cache"
+          echo "image=${IMAGE}" >> "$GITHUB_OUTPUT"
+
+      - name: Update K8s manifest (GitOps)
+        uses: imranismail/setup-kustomize@v2
+
+      - name: Update image tag in manifest
+        run: |
+          cd ${{ env.K8S_OVERLAY }}
+          kustomize edit set image oae/register-client="${{ steps.build.outputs.image }}"
+
+      - name: Commit & push manifest
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add ${{ env.K8S_OVERLAY }}/kustomization.yaml
+          git diff --staged --quiet || \
+            git commit -m "chore: deploy register ${GITHUB_SHA::7} [skip ci]"
+          git push

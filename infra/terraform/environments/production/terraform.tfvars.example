@@ -1,0 +1,35 @@
+aws_region   = "ap-south-1"
+environment  = "production"
+project      = "odi"
+
+# VPC
+vpc_cidr = "10.0.0.0/16"
+
+# EKS
+eks_cluster_version = "1.31"
+node_instance_types = ["t3.medium"]
+node_min_size       = 2
+node_max_size       = 5
+node_desired_size   = 2
+
+# RDS
+db_name            = "odi"
+db_username        = "odiuser"
+db_password        = "CHANGE_ME_strong_password_here"
+rds_instance_class = "db.t3.small"
+rds_multi_az       = true
+
+# ElastiCache
+redis_node_type    = "cache.t3.small"
+redis_num_clusters = 2
+redis_auth_token   = "CHANGE_ME_redis_auth_token_min_16_chars"
+
+# S3
+s3_bucket_name = "odi-uploads-production"
+
+# Domain
+domain = "anyserver.site"
+
+# GitHub (for OIDC — allows GitHub Actions to push to ECR without stored keys)
+github_org  = "YOUR_GITHUB_USERNAME_OR_ORG"
+github_repo = "odi_server"

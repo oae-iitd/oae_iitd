@@ -1,0 +1,1 @@
+-- No-op: migration 006 was already a no-op.

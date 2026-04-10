@@ -1,0 +1,2 @@
+-- Obsolete migration: Course feature removed
+-- This migration is now a no-op to avoid creating course-related tables.

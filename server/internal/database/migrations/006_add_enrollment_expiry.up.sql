@@ -1,0 +1,2 @@
+-- Obsolete migration: course enrollments removed
+-- This migration is now a no-op.

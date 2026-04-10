@@ -1,0 +1,40 @@
+# external-dns watches Ingress resources and automatically creates/updates
+# Route53 DNS records. When ArgoCD deploys an Ingress with host: admin.anyserver.site,
+# external-dns creates an A record pointing to the ALB.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: external-dns
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://charts.bitnami.com/bitnami
+    chart: external-dns
+    targetRevision: "8.*"
+    helm:
+      values: |
+        provider: aws
+        aws:
+          region: ap-south-1
+          zoneType: public
+        domainFilters:
+          - anyserver.site
+        policy: sync
+        serviceAccount:
+          name: external-dns
+          annotations:
+            # Get from: terraform output external_dns_role_arn
+            eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT_ID:role/oae-production-external-dns
+        txtOwnerId: oae-production
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: external-dns
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

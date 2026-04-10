@@ -1,0 +1,3 @@
+DROP FUNCTION IF EXISTS cleanup_expired_otps();
+DROP TABLE IF EXISTS email_logs CASCADE;
+DROP TABLE IF EXISTS otp_codes CASCADE;
