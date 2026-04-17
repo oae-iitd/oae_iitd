@@ -74,6 +74,7 @@ jobs:
         with:
           version: v1.62.2
           working-directory: server
+          args: --timeout=5m
 
   # ── Admin: lint + unit tests ────────────────────────────────────────────────
   test-admin:
