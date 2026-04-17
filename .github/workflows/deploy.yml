@@ -214,6 +214,24 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key:      ${{ secrets.EC2_SSH_KEY }}
           script: |
-            export TAG=${{ github.sha }}
-            export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
-            bash /opt/oae/scripts/deploy.sh all
+            set -e
+
+            # Clone repo on first run, pull on subsequent runs
+            if [ ! -d /opt/oae/.git ]; then
+              sudo mkdir -p /opt/oae
+              sudo chown $USER:$USER /opt/oae
+              git clone https://github.com/${{ github.repository }}.git /opt/oae
+            else
+              git -C /opt/oae pull origin main --ff-only
+            fi
+
+            cd /opt/oae
+
+            # Write .env for docker compose image names
+            echo "DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}" > .env
+            echo "TAG=${{ github.sha }}"                                >> .env
+
+            # Pull new images and restart all services
+            docker compose pull
+            docker compose up -d --remove-orphans
+            docker image prune -f
