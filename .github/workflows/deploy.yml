@@ -228,7 +228,8 @@ jobs:
               sudo chown $USER:$USER /opt/oae
               git clone https://github.com/${REPO}.git /opt/oae
             else
-              git -C /opt/oae pull origin main --ff-only
+              git -C /opt/oae fetch origin main
+              git -C /opt/oae reset --hard origin/main
             fi
 
             cd /opt/oae
