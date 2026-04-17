@@ -239,6 +239,10 @@ jobs:
             # Write server runtime secrets
             printf '%s\n' "$SERVER_ENV" > .env.server
 
+            # Free ports 80/443 if a system web server is running
+            sudo systemctl stop nginx apache2 2>/dev/null || true
+            sudo systemctl disable nginx apache2 2>/dev/null || true
+
             # Pull new images and restart all services
             docker compose pull
             docker compose up -d --remove-orphans
