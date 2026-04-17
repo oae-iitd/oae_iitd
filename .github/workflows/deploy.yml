@@ -209,10 +209,16 @@ jobs:
 
       - name: Deploy all to EC2
         uses: appleboy/ssh-action@v1
+        env:
+          SERVER_ENV:         ${{ secrets.SERVER_ENV }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          TAG:                ${{ github.sha }}
+          REPO:               ${{ github.repository }}
         with:
           host:     ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key:      ${{ secrets.EC2_SSH_KEY }}
+          envs:     SERVER_ENV,DOCKERHUB_USERNAME,TAG,REPO
           script: |
             set -e
 
@@ -220,7 +226,7 @@ jobs:
             if [ ! -d /opt/oae/.git ]; then
               sudo mkdir -p /opt/oae
               sudo chown $USER:$USER /opt/oae
-              git clone https://github.com/${{ github.repository }}.git /opt/oae
+              git clone https://github.com/${REPO}.git /opt/oae
             else
               git -C /opt/oae pull origin main --ff-only
             fi
@@ -228,8 +234,10 @@ jobs:
             cd /opt/oae
 
             # Write .env for docker compose image names
-            echo "DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}" > .env
-            echo "TAG=${{ github.sha }}"                                >> .env
+            printf 'DOCKERHUB_USERNAME=%s\nTAG=%s\n' "$DOCKERHUB_USERNAME" "$TAG" > .env
+
+            # Write server runtime secrets
+            printf '%s\n' "$SERVER_ENV" > .env.server
 
             # Pull new images and restart all services
             docker compose pull
