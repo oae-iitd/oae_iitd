@@ -173,7 +173,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./server
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/oae-server:${{ github.sha }}
@@ -185,7 +185,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./admin_client
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           push: true
           build-args: VITE_API_URL=${{ secrets.VITE_API_URL }}
           tags: |
@@ -198,7 +198,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./register_client
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           push: true
           build-args: VITE_API_URL=${{ secrets.VITE_API_URL }}
           tags: |
