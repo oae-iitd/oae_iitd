@@ -1,0 +1,95 @@
+version: '3.8'
+
+services:
+  # ── Reverse proxy + SSL termination ────────────────────────────────────────
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: oae-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - letsencrypt:/etc/letsencrypt:ro
+      - certbot-webroot:/var/www/certbot
+    depends_on:
+      - server
+      - admin
+      - register
+    restart: unless-stopped
+    networks:
+      - oae-network
+
+  # ── Certbot (auto-renews every 12h) ────────────────────────────────────────
+  certbot:
+    image: certbot/certbot:latest
+    container_name: oae-certbot
+    volumes:
+      - letsencrypt:/etc/letsencrypt
+      - certbot-webroot:/var/www/certbot
+    entrypoint: >
+      /bin/sh -c "trap exit TERM;
+      while :; do
+        certbot renew --webroot -w /var/www/certbot --quiet;
+        sleep 12h & wait $${!};
+      done"
+    restart: unless-stopped
+    networks:
+      - oae-network
+
+  # ── Go API server ───────────────────────────────────────────────────────────
+  server:
+    image: ${DOCKERHUB_USERNAME}/oae-server:${TAG:-latest}
+    container_name: oae-server
+    env_file: .env.server
+    environment:
+      - APP_PORT=3000
+      - APP_ENV=production
+      - REDIS_ADDR=redis:6379
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - oae-network
+
+  # ── Admin React SPA ─────────────────────────────────────────────────────────
+  admin:
+    image: ${DOCKERHUB_USERNAME}/oae-admin:${TAG:-latest}
+    container_name: oae-admin
+    restart: unless-stopped
+    networks:
+      - oae-network
+
+  # ── Register React SPA ──────────────────────────────────────────────────────
+  register:
+    image: ${DOCKERHUB_USERNAME}/oae-register:${TAG:-latest}
+    container_name: oae-register
+    restart: unless-stopped
+    networks:
+      - oae-network
+
+  # ── Redis ───────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: oae-redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - oae-network
+
+volumes:
+  redis-data:
+  letsencrypt:
+  certbot-webroot:
+
+networks:
+  oae-network:
+    driver: bridge

@@ -76,6 +76,7 @@ const PREDEFINED_LOCATIONS = [
   "Katwaria Sarai Gate",
   "Kumaon",
   "Main Gate",
+  "LHC",
   "Mehrauli Gate",
   "Nilgiri",
   "R&I Park",
