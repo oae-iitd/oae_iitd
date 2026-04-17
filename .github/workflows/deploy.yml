@@ -207,12 +207,17 @@ jobs:
           cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/oae-register:cache
           cache-to:   type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/oae-register:cache,mode=max
 
+      - name: Decode SSH key
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" | base64 -d > /tmp/ec2_key
+          chmod 600 /tmp/ec2_key
+
       - name: Deploy all to EC2
         uses: appleboy/ssh-action@v1
         with:
           host:     ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
-          key:      ${{ secrets.EC2_SSH_KEY }}
+          key_path: /tmp/ec2_key
           script: |
             export TAG=${{ github.sha }}
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
