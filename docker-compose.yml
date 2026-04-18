@@ -22,8 +22,6 @@ services:
   certbot:
     image: certbot/certbot:latest
     container_name: oae-certbot
-    ports:
-      - "80:80" 
     volumes:
       - letsencrypt:/etc/letsencrypt
       - certbot-webroot:/var/www/certbot
@@ -59,8 +57,6 @@ services:
   admin:
     image: ${DOCKERHUB_USERNAME}/oae-admin:${TAG:-latest}
     container_name: oae-admin
-    ports:
-      - "80:80"
     restart: unless-stopped
     networks:
       - oae-network
@@ -69,8 +65,6 @@ services:
   register:
     image: ${DOCKERHUB_USERNAME}/oae-register:${TAG:-latest}
     container_name: oae-register
-    ports:
-      - "80:80"
     restart: unless-stopped
     networks:
       - oae-network
