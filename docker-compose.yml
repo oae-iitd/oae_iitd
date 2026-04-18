@@ -22,6 +22,8 @@ services:
   certbot:
     image: certbot/certbot:latest
     container_name: oae-certbot
+    ports:
+      - "80:80" 
     volumes:
       - letsencrypt:/etc/letsencrypt
       - certbot-webroot:/var/www/certbot
@@ -39,6 +41,8 @@ services:
   server:
     image: ${DOCKERHUB_USERNAME}/oae-server:${TAG:-latest}
     container_name: oae-server
+    ports:
+      - "3000:3000" 
     env_file: .env.server
     environment:
       - APP_PORT=3000
@@ -55,6 +59,8 @@ services:
   admin:
     image: ${DOCKERHUB_USERNAME}/oae-admin:${TAG:-latest}
     container_name: oae-admin
+    ports:
+      - "80:80"
     restart: unless-stopped
     networks:
       - oae-network
@@ -63,6 +69,8 @@ services:
   register:
     image: ${DOCKERHUB_USERNAME}/oae-register:${TAG:-latest}
     container_name: oae-register
+    ports:
+      - "80:80"
     restart: unless-stopped
     networks:
       - oae-network
@@ -72,6 +80,8 @@ services:
     image: redis:7-alpine
     container_name: oae-redis
     command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
     volumes:
       - redis-data:/data
     healthcheck:
